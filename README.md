@@ -1,8 +1,8 @@
 # Classification for Profitability of New LEGO Sets
 
-The goal of this project is to predict whether a LEGO set will be profitable if bought in store. We imagine that we have clients who are interested in long-term investment in LEGO sets, and want to provide them with the best recommendation for whether to buy or not a newly released set. Therefore our algorithm will classify new sets into 2 categories: profitable, and not profitable.
+The goal of this project is to predict whether a LEGO set will be profitable if bought in store and sold later in the online marketplace. We imagine that we have clients who are interested in long-term investment in LEGO sets, and want to provide them with the best recommendation for whether to buy or not a newly released set. Therefore our algorithm will classify new sets into 2 categories: profitable, and not profitable.
 
-This project was created under the FlatIron School's Data Science Bootcamp, for the Module 4 project.
+This project was created under the FlatIron School's Data Science Bootcamp, for the Module 5 project.
 
 [Non-Technical Presentation (Google Slides)](https://docs.google.com/presentation/d/1p3eqReoSEz2ut75-WD99ZIlFgdN_etg459Ask3iq8E0/edit?usp=sharing)
 
@@ -30,16 +30,16 @@ Our most definitive results came from the XGBoost analysis. We found we could re
 
 ## Methodology
 
-**1. Scrape & Clean Data:** Data was scraped using the requests and beautifulsoup libraries. Since there are thousands of sets available, the work was broken down by first getting the url of each set for each year. Then each url is visited, and it's data is scraped. The data fields available from this are: set-id, name, year, themes, minifig count, store price, used price, user rating, and set type. Some filtering was done on the rows, so that LEGO non-sets, such as clothing items, are removed from the data. Also, any rows without store price data are eliminated. The next graph shows the release year distribution, just for exploratory data analysis.
+**1. Scrape & Clean Data:** Data was scraped using the <i>requests</i> and <i>beautifulsoup</i> libraries. Since there are thousands of sets available, the work was broken down by first getting the url of each set for each year. Then each url is visited, and it's data is scraped. The data fields available from this are: set-id, name, year, themes, minifig count, store price, used price, user rating, and set type. Some filtering was done on the rows, so that LEGO non-sets, such as clothing items, are removed from the data. Also, any rows without store price data are eliminated. The next graph shows the release year distribution, just for exploratory data analysis.
 
 ![](assets/year_distribution.png)
 
-**2. Feature Engineering:** The kaggle data was joined with the basic data for additional features. Some of these features are readily available, while others were manufactured based on informed guessing. The new data fields are: total number of pieces, number of different pieces, total number of pieces per piece category (1 column per category), primary color, secondary color, and number of different colors. The categorical features (color, themes) were aggregated into more coarse-grain values and then one-hot encoded. Finally, all the columns are standardized with <i>sklearn.preprocessing.StandardScaler</i>.
+**2. Feature Engineering:** The kaggle data was joined with the basic data for additional features. Some of these features are readily available, while others were manufactured based on informed guessing. The new data fields are: total number of pieces, number of different pieces, total number of pieces per piece category (1 column per category), primary color, secondary color, and number of different colors. The categorical features (color, themes) were aggregated into more coarse-grain values and then one-hot encoded. Finally, all the columns are standardized with <i>sklearn.preprocessing.StandardScaler</i> as part of the pipeline.
 
-**3. Target Variable:** The target variable is not present in the data set, so we created it. First, the store price is adjusted for inflation. This was done with an approximation that each year has an inflation rate of 2.63%. Secondly, the aftermarket column is created. From that, the profitable column is derived as explained next.
+**3. Target Variable:** The target variable, which is whether a set is profitable or not, is not present in the data set, so we created it. First, the store price is adjusted for inflation. This was done with an approximation that each year has an inflation rate of 2.63%. Secondly, the aftermarket column is created. From that, the profitable column is derived as explained next.
 
-> aftermarket = used_price - store_price
-> profitable is <b>1</b> if aftermarket > 0, and <b>0</b> otherwise
+> aftermarket = used_price - store_price <br>
+> profitable: <b>1</b> if aftermarket > 0, <b>0</b> otherwise
 
 The next graph shows the distribution of the aftermarket column. It shows that this column is biased towards the negative side, meaning most LEGO sets are not profitable. More specifically, 74% are not profitable. 
 
@@ -57,5 +57,5 @@ Next some experimenting was done with 3 different sampling techniques: imbalance
 
 Lastly, a grid search was used to tune some hyper-parameters such as <i>estimators</i> and <i>max_depth</i>. This only increased the test accuracy to 80.4%. 
 
-**6. XGBoost:** XGBoost is not available in <i>sklearn</i> and was instead installed from the <i>xgboost</i> package. The baseline CV test accuracy was 80.0%. The first variation was using PCA to address the over-fitting problem and reduce the computational time of the grid search. However, both PCA and SMOTE slightly reduced the accuracy. Iterative feature inlcusion was then used to find the optimal number of features based on the CV test results. We ultimately found that 71 of 92 features was the sweet spot, which yielded a CV test accuracy of 81.3%. 
+**6. XGBoost:** XGBoost is not available in <i>sklearn</i> and was instead installed from the <i>xgboost</i> package. The baseline CV test accuracy was 80.0%. The first variation was using PCA to address the over-fitting problem and reduce the computational time of the grid search. However, both PCA and SMOTE slightly reduced the accuracy. Iterative feature inclusion was then used to find the optimal number of features based on the CV test results. We ultimately found that 71 of 92 features was the sweet spot, which yielded a CV test accuracy of 81.3%. 
 
